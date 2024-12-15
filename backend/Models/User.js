@@ -1,21 +1,28 @@
 const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
 
-const UserSchema = new Schema({
-  name: {
-    type: String, // Use JavaScript's String constructor
-    required: true,
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 4,
+    },
   },
-  email: {
-    type: String, // Use JavaScript's String constructor
-    required: true,
-    unique: true, // Ensures email uniqueness
-  },
-  password: {
-    type: String, // Use JavaScript's String constructor
-    required: true,
-  },
-});
+  { timestamps: true } // Automatically adds `createdAt` and `updatedAt` fields
+);
 
-const UserModel = mongoose.model("users", UserSchema);
+const UserModel = mongoose.model("User", userSchema);
+
 module.exports = UserModel;
