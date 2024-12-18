@@ -3,6 +3,7 @@ const {
   signup,
   login,
   updateProfile,
+  logout,
 } = require("../Controllers/AuthController");
 const {
   signupValidation,
@@ -13,20 +14,32 @@ const ensureAuthenticated = require("../Middlewares/Auth");
 
 const router = express.Router();
 
-// Define routes with necessary middlewares
-
-// POST /signup: User signup route with validation
 router.post("/signup", signupValidation, signup);
-
-// POST /login: User login route with validation
 router.post("/login", loginValidation, login);
-
-// PUT /update-profile: User profile update route with authentication and validation
+router.get("/profile", ensureAuthenticated, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await UserModel.findById(userId).select("-password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "User not found", success: false });
+    }
+    res.status(200).json({
+      message: "User profile fetched successfully",
+      success: true,
+      user: { name: user.name, email: user.email },
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+});
 router.put(
   "/update-profile",
-  ensureAuthenticated, // Ensure user is authenticated
-  updateProfileValidation, // Validate input data
-  updateProfile // Controller to handle the request
+  ensureAuthenticated,
+  updateProfileValidation,
+  updateProfile
 );
+router.post("/logout", ensureAuthenticated, logout);
 
 module.exports = router;

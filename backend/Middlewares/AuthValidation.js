@@ -27,7 +27,7 @@ const loginValidation = (req, res, next) => {
   next();
 };
 
-// Update profile validation
+// Update Profile validation
 const updateProfileValidation = (req, res, next) => {
   const schema = joi.object({
     name: joi.string().min(3).max(100).optional(),
