@@ -13,9 +13,14 @@ const recepiesSchema = new mongoose.Schema({
   content: {
     type: String,
     required: true,
-    lowlength: 7,
+    minlength: 7,
+  },
+  image: {
+    type: String, // Path to the uploaded image
+    required: true,
   },
 });
+
 const RecepiesModel = mongoose.model("Recepies", recepiesSchema);
 
 module.exports = RecepiesModel;
