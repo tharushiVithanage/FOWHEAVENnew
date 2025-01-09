@@ -47,18 +47,26 @@ router.post("/recepies/save", upload, async (req, res) => {
   }
 });
 
-// Get all recipes
-router.get("/recepies", async (req, res) => {
+/// Get a recipe by ID
+router.get("/recepies/:id", async (req, res) => {
   try {
-    const recipes = await Recepies.find();
+    const recipe = await Recepies.findById(req.params.id);
+
+    if (!recipe) {
+      return res.status(404).json({
+        message: "Recipe not found",
+        success: false,
+      });
+    }
+
     res.status(200).json({
-      message: "Recipes fetched successfully",
+      message: "Recipe fetched successfully",
       success: true,
-      recipes,
+      recipe,
     });
   } catch (err) {
     res.status(500).json({
-      message: "Error fetching recipes",
+      message: "Error fetching recipe",
       success: false,
       error: err.message,
     });
@@ -68,10 +76,23 @@ router.get("/recepies", async (req, res) => {
 // Update a recipe by ID
 router.put("/recepies/update/:id", async (req, res) => {
   try {
+    const id = req.params.id;
+    const { title, category, content, image } = req.body;
+
+    console.log("Request body:", req.body); // Log the incoming request data
+
+    // Check if the required fields are provided
+    if (!title || !category || !content || !image) {
+      return res.status(400).json({
+        message: "All fields (title, category, content, image) are required",
+        success: false,
+      });
+    }
+
     const updatedRecipe = await Recepies.findByIdAndUpdate(
-      req.params.id,
-      { $set: req.body },
-      { new: true }
+      id,
+      { title, category, content, image },
+      { new: true, runValidators: true } // runValidators ensures that the update follows schema constraints
     );
 
     if (!updatedRecipe) {
@@ -80,6 +101,10 @@ router.put("/recepies/update/:id", async (req, res) => {
         .json({ message: "Recipe not found", success: false });
     }
 
+    // Log the updated recipe for debugging
+    console.log("Updated recipe:", updatedRecipe);
+
+    // Send the response once
     res.status(200).json({
       message: "Recipe updated successfully",
       success: true,
